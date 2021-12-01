@@ -13,8 +13,6 @@ namespace MyApp.Commands
 
             var result = CheckClasswithSuffixUsingLambda();
 
-            result = CheckClasswithSuffixUsingLambda();
-
             result = CheckClassWithSuffixUsingLinq();
 
             result = CheckClasswithSuffixWithCorrectNameSpaceUsingLambda();

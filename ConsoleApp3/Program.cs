@@ -1,79 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
-namespace ConsoleApp3
+namespace MyApp.Commands
 {
     class Program
     {
         static void Main(string[] args)
         {
-            
-            var result = CheckClasswithSuffix();
-            result = CheckClasswithSuffixWithCorrectNameSpace();
-            
+
+
+            var result = CheckClasswithSuffixUsingLambda();
+
+            result = CheckClasswithSuffixUsingLambda();
+
+            result = CheckClassWithSuffixUsingLinq();
+
+            result = CheckClasswithSuffixWithCorrectNameSpaceUsingLambda();
+
+            result = CheckClasswithSuffixWithCorrectNameSpaceUsingLinq();
+
+
         }
 
-        private static List<string> CheckClasswithSuffix()
+        private static List<string> CheckClasswithSuffixUsingLambda()
         {
-            var result = new List<string>();
-            result.Add("MyApp.FirstCommand");
-            result.Add("MyApp.Namespace.Commands.SecondCommand");
-            result.Add("MyApp.Commands.ThirdCommand");
-            result.Add("MyApp.Commands.SomeClass");
-            result.Add("MyApp.Commands.Namespace.TestClass");
+            return (Assembly.GetExecutingAssembly().DefinedTypes.ToList().Where(x =>!x.Name.EndsWith("Command", StringComparison.InvariantCultureIgnoreCase)).ToList().Select(t => t.Name).ToList());
 
-            if (result != null && result.Count > 1)
-            {
-                foreach (var itemWithCorrectSuffix in result.ToList())
-                {
-
-                    if (itemWithCorrectSuffix.EndsWith("Command", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        result.Remove(itemWithCorrectSuffix);
-
-
-                    }
-                }
-            }
-
-            return result;
         }
-        private static List<string> CheckClasswithSuffixWithCorrectNameSpace()
+        private static List<string> CheckClasswithSuffixWithCorrectNameSpaceUsingLambda()
         {
-            var result = new List<string>();
-            result.Add("MyApp.FirstCommand");
-            result.Add("MyApp.Namespace.Commands.SecondCommand");
-            result.Add("MyApp.Commands.ThirdCommand");
-            result.Add("MyApp.Commands.SomeClass");
-            result.Add("MyApp.Commands.Namespace.TestClass");
+            return (Assembly.GetExecutingAssembly().DefinedTypes.ToList().Where(x => x.Name.EndsWith("Command", StringComparison.InvariantCultureIgnoreCase) && !x.FullName.StartsWith("MyApp.Commands", StringComparison.InvariantCultureIgnoreCase)).ToList().Select(t => t.FullName).ToList());
+        }
 
-            if (result != null && result.Count >1)
-            {
-                foreach (var itemWithInCorrectSuffix in result.ToList())
-                {
-                    if (!itemWithInCorrectSuffix.EndsWith("Command", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        result.Remove(itemWithInCorrectSuffix);
+        private static List<string> CheckClassWithSuffixUsingLinq()
+        {
+            var str = Assembly.GetExecutingAssembly().DefinedTypes.ToList();
+            var query = from element in str
+                        where ! (element.Name.EndsWith("Command", StringComparison.InvariantCultureIgnoreCase))
+                        select element;
 
-                    }
-                }
+             return query.ToList().Select(t=>t.Name).ToList();
+        }
 
-                foreach (var itemUnderIncorrectNameSpace in result.ToList())
-                {
-                    var str = itemUnderIncorrectNameSpace.Split('.');
-                    if (str.Count() > 1)
-                    {
-
-                        if (str[0].ToLower() == "myapp" && str[1].ToLower() == "commands")
-                        {
-                            result.Remove(itemUnderIncorrectNameSpace);
-                        }
-                    }
-                }
-            }
-            return result;
-
+        private static List<string> CheckClasswithSuffixWithCorrectNameSpaceUsingLinq()
+        {
+            var str = Assembly.GetExecutingAssembly().DefinedTypes.ToList();
+            var query = from element in str
+                        where (element.Name.EndsWith("Command", StringComparison.InvariantCultureIgnoreCase))
+                        where !(element.FullName.StartsWith("MyApp.Commands", StringComparison.InvariantCultureIgnoreCase))
+                        select element;
+            return query.ToList().Select(t => t.FullName).ToList();
         }
     }
 }
